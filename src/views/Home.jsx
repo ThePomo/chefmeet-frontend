@@ -1,112 +1,161 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { fetchWithAuth } from "../utils/api";
 import { useNavigate } from "react-router-dom";
+import logoChefMeet from "../assets/img/1logocheefmeetcompleto.png";
 
 const Home = () => {
+  const [user] = useState(() => JSON.parse(localStorage.getItem("user")));  // ✅ Legge user solo una volta
+  const navigate = useNavigate();
+
   const [contenuti, setContenuti] = useState([]);
   const [ricetteTop, setRicetteTop] = useState([]);
   const [prenotazioni, setPrenotazioni] = useState([]);
   const [likeUtente, setLikeUtente] = useState([]);
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  const navigate = useNavigate();
+  const ricetteTopRef = useRef(null);
 
   useEffect(() => {
+    if (!user?.id) return;  // ✅ Controlla subito se esiste un user valido
+
     const fetchDati = async () => {
-      const resEventi = await fetchWithAuth("/Evento");
-      const resRicette = await fetchWithAuth("/Creazione");
+      try {
+        const [resEventi, resRicette, resPren, resLike] = await Promise.all([
+          fetchWithAuth("/Evento"),
+          fetchWithAuth("/Creazione"),
+          fetchWithAuth(`/Prenotazione/utente/${user.id}`),
+          fetchWithAuth(`/Like/utente/${user.id}`)
+        ]);
 
-      if (resEventi.ok && resRicette.ok) {
-        const eventi = await resEventi.json();
-        const ricette = await resRicette.json();
+        if (resEventi.ok && resRicette.ok) {
+          const eventi = await resEventi.json();
+          const ricette = await resRicette.json();
 
-        const eventiConTipo = eventi.map((e) => ({ ...e, tipo: "evento" }));
-        const ricetteConTipo = ricette.map((r) => ({ ...r, tipo: "ricetta" }));
+          const eventiConTipo = eventi.map((e) => ({ ...e, tipo: "evento" }));
+          const ricetteConTipo = ricette.map((r) => ({ ...r, tipo: "ricetta" }));
 
-        const unione = [...eventiConTipo, ...ricetteConTipo];
-        const ordinati = unione.sort((a, b) => new Date(b.data) - new Date(a.data));
-        setContenuti(ordinati);
+          const unione = [...eventiConTipo, ...ricetteConTipo];
+          const ordinati = unione.sort((a, b) => new Date(b.data) - new Date(a.data));
+          setContenuti(ordinati);
 
-        const ricetteRandom = ricette.sort(() => 0.5 - Math.random()).slice(0, 3);
-        setRicetteTop(ricetteRandom);
-      }
+          if (!ricetteTopRef.current) {
+            const ricetteCopy = [...ricette];
+            for (let i = ricetteCopy.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [ricetteCopy[i], ricetteCopy[j]] = [ricetteCopy[j], ricetteCopy[i]];
+            }
+            ricetteTopRef.current = ricetteCopy.slice(0, 2);
+          }
+          setRicetteTop(ricetteTopRef.current);
+        }
 
-      if (user) {
-        const resPren = await fetchWithAuth(`/Prenotazione/utente/${user.id}`);
         if (resPren.ok) {
           const pren = await resPren.json();
           setPrenotazioni(pren.map((p) => p.eventoId));
         }
 
-        const resLike = await fetchWithAuth(`/Like/utente/${user.id}`);
         if (resLike.ok) {
           const likes = await resLike.json();
           setLikeUtente(likes.map((l) => l.creazioneId));
         }
+
+      } catch (error) {
+        console.error("Errore nel caricamento dei dati:", error);
       }
     };
 
     fetchDati();
-  }, []);
+  }, [user?.id]);  // ✅ Dipendi SOLO da user.id
 
   const handlePrenota = async (eventoId) => {
-    const res = await fetchWithAuth("/Prenotazione", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(eventoId),
-    });
-    if (res.ok) {
-      setPrenotazioni((prev) => [...prev, eventoId]);
+    try {
+      const res = await fetchWithAuth("/Prenotazione", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(eventoId),
+      });
+      if (res.ok) {
+        setPrenotazioni((prev) => [...prev, eventoId]);
+      }
+    } catch (error) {
+      console.error("Errore nella prenotazione", error);
     }
   };
 
   const handleCancella = async (eventoId) => {
-    const res = await fetchWithAuth(`/Prenotazione/utente/${user.id}`);
-    if (res.ok) {
-      const data = await res.json();
-      const pren = data.find((p) => p.eventoId === eventoId);
-      if (pren) {
-        const resDelete = await fetchWithAuth(`/Prenotazione/${pren.id}`, {
-          method: "DELETE",
-        });
-        if (resDelete.ok) {
-          setPrenotazioni((prev) => prev.filter((id) => id !== eventoId));
+    try {
+      const res = await fetchWithAuth(`/Prenotazione/utente/${user.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        const pren = data.find((p) => p.eventoId === eventoId);
+        if (pren) {
+          const resDelete = await fetchWithAuth(`/Prenotazione/${pren.id}`, {
+            method: "DELETE",
+          });
+          if (resDelete.ok) {
+            setPrenotazioni((prev) => prev.filter((id) => id !== eventoId));
+          }
         }
       }
+    } catch (error) {
+      console.error("Errore nella cancellazione", error);
     }
   };
 
   const handleLike = async (creazioneId) => {
+    if (!user) return;
+
     const alreadyLiked = likeUtente.includes(creazioneId);
+
     if (alreadyLiked) {
-      const res = await fetchWithAuth(`/Like/utente/${user.id}`);
-      if (res.ok) {
-        const likeData = await res.json();
-        const like = likeData.find((l) => l.creazioneId === creazioneId);
-        if (like) {
-          await fetchWithAuth(`/Like/${like.id}`, { method: "DELETE" });
+      try {
+        const resDelete = await fetchWithAuth(`/Like/${creazioneId}`, {
+          method: "DELETE",
+        });
+
+        if (resDelete.ok || resDelete.status === 404) {
           setLikeUtente((prev) => prev.filter((id) => id !== creazioneId));
+        } else {
+          console.error("Errore nella cancellazione del like");
         }
+      } catch (error) {
+        console.error("Errore nel DELETE like:", error);
       }
     } else {
-      const res = await fetchWithAuth("/Like", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ creazioneId }),
-      });
-      if (res.ok) {
-        setLikeUtente((prev) => [...prev, creazioneId]);
+      try {
+        const res = await fetchWithAuth(`/Like/${creazioneId}`, {
+          method: "POST",
+        });
+        if (res.ok) {
+          setLikeUtente((prev) => [...prev, creazioneId]);
+        } else {
+          console.error("Errore nell'aggiunta del like");
+        }
+      } catch (error) {
+        console.error("Errore nel POST like:", error);
       }
     }
   };
 
+  if (!user) {
+    return (
+      <div className="container text-center mt-5">
+        <img
+          src={logoChefMeet}
+          alt="ChefMeet Logo"
+          style={{ maxWidth: "500px", width: "100%" }}
+          className="mb-4"
+        />
+        <h2>Benvenuto su ChefMeet!</h2>
+        <p>Accedi o registrati per scoprire eventi, chef e ricette da tutto il mondo!</p>
+      </div>
+    );
+  }
+
   return (
     <div className="container mt-4">
       <div className="row">
-        {/* Colonna sinistra */}
-        <div className="col-md-2 d-none d-md-block"></div>
+        <div className="col-md-2 d-none d-md-block" />
 
-        {/* Colonna centrale */}
         <div className="col-md-7">
           <h3 className="mb-4">📰 Ultime novità</h3>
           {contenuti.map((item) => (
@@ -115,7 +164,7 @@ const Home = () => {
                 <img
                   src={`https://localhost:7081${item.immagine}`}
                   className="card-img-top"
-                  alt={item.titolo || item.nome}
+                  alt={item.nome || item.titolo}
                   style={{ maxHeight: "300px", objectFit: "cover" }}
                 />
               )}
@@ -134,8 +183,7 @@ const Home = () => {
                 </h5>
                 <p className="card-text">{item.descrizione}</p>
                 <p className="text-muted mb-1">
-                  {item.tipo === "evento" ? "Evento" : "Ricetta"} •{" "}
-                  {new Date(item.data).toLocaleDateString()}
+                  {item.tipo === "evento" ? "Evento" : "Ricetta"} • {new Date(item.data).toLocaleDateString()}
                 </p>
                 <p className="text-muted">
                   {item.tipo === "evento" ? (
@@ -155,8 +203,7 @@ const Home = () => {
                   )}
                 </p>
 
-                {/* Azioni */}
-                {item.tipo === "evento" && user && (
+                {item.tipo === "evento" && (
                   prenotazioni.includes(item.id) ? (
                     <button className="btn btn-danger me-2" onClick={() => handleCancella(item.id)}>
                       Cancella Prenotazione
@@ -168,9 +215,9 @@ const Home = () => {
                   )
                 )}
 
-                {item.tipo === "ricetta" && user && (
+                {item.tipo === "ricetta" && (
                   <button
-                    className={`btn ${likeUtente.includes(item.id) ? "btn-outline-danger" : "btn-outline-secondary"}`}
+                    className={`btn ${likeUtente.includes(item.id) ? "btn-danger" : "btn-outline-secondary"}`}
                     onClick={() => handleLike(item.id)}
                   >
                     ❤️ {likeUtente.includes(item.id) ? "Non mi piace più" : "Like"}
@@ -181,7 +228,6 @@ const Home = () => {
           ))}
         </div>
 
-        {/* Colonna destra */}
         <div className="col-md-3">
           <h4 className="mb-3">🍝 Le ricette più interessanti</h4>
           {ricetteTop.map((ricetta) => (
@@ -202,7 +248,6 @@ const Home = () => {
                 >
                   {ricetta.nome}
                 </h6>
-                <small className="text-muted">{new Date(ricetta.data).toLocaleDateString()}</small>
               </div>
             </div>
           ))}

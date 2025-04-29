@@ -4,13 +4,13 @@ import { fetchWithAuth } from "../utils/api";
 import ListaCreazioniUtente from "../components/ListaCreazioniUtente";
 
 const ChefPublicProfile = () => {
-  const { id } = useParams(); 
+  const { id } = useParams(); // Questo è il userId (stringa GUID)
   const [chef, setChef] = useState(null);
 
   useEffect(() => {
     const fetchChef = async () => {
       try {
-        const res = await fetchWithAuth(`/Chef/${id}`);
+        const res = await fetchWithAuth(`/Chef/byUser/${id}`); // ✅ ENDPOINT CORRETTO
         if (res.ok) {
           const data = await res.json();
           setChef(data);
@@ -61,3 +61,4 @@ const ChefPublicProfile = () => {
 };
 
 export default ChefPublicProfile;
+

@@ -22,6 +22,8 @@ import ModificaProfilo from "./views/ModificaProfilo";
 import UserProfile from "./views/UserProfile";
 import MiePrenotazioni from "./views/MiePrenotazioni";
 import PrenotazioniRicevute from "./views/PrenotazioniRicevute";
+import AdminDashboard from "./views/AdminDashboard";
+import AdminRoute from "./utils/AdminRoute";
 
 const App = () => {
   return (
@@ -59,8 +61,14 @@ const App = () => {
             path="/prenotazioni-ricevute"
             element={<PrenotazioniRicevute />}
           />
-
-  
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
         </Routes>
       </div>
     </Router>

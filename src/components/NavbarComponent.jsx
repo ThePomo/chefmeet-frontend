@@ -4,6 +4,7 @@ import { Navbar, Nav, Container, Form, ListGroup } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/userSlice";
 import { fetchWithAuth } from "../utils/api";
+import logo from "../assets/img/scrittacheefmeet.png";
 
 const NavbarComponent = () => {
   const { isAuthenticated, user } = useSelector((state) => state.user);
@@ -56,13 +57,22 @@ const NavbarComponent = () => {
   return (
     <Navbar expand="lg" style={{ backgroundColor: "#04ABA2" }} variant="dark">
       <Container>
-        <Navbar.Brand as={Link} to="/">ChefMeet</Navbar.Brand>
+        <Navbar.Brand as={Link} to="/">
+          <img src={logo} alt="Logo" className="align-middle" style={{ height: "40px", marginTop: "5px" }} />
+        </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbar-nav" />
         <Navbar.Collapse id="navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link as={Link} to="/">Home</Nav.Link>
-            <Nav.Link as={Link} to="/eventi">Eventi</Nav.Link>
-            <Nav.Link as={Link} to="/ricettario">Ricettario</Nav.Link>
+            {isAuthenticated && (
+              <Nav.Link as={Link} to="/">Home</Nav.Link>
+            )}
+
+            {isAuthenticated && (
+              <>
+                <Nav.Link as={Link} to="/eventi">Eventi</Nav.Link>
+                <Nav.Link as={Link} to="/ricettario">Ricettario</Nav.Link>
+              </>
+            )}
 
             {isAuthenticated && user?.ruolo === "Chef" && (
               <>
@@ -80,7 +90,13 @@ const NavbarComponent = () => {
               </>
             )}
 
-            {isAuthenticated && (
+            {isAuthenticated && user?.ruolo === "Admin" && (
+              <>
+                <Nav.Link as={Link} to="/admin">Dashboard Admin</Nav.Link>
+              </>
+            )}
+
+            {isAuthenticated && user?.ruolo !== "Admin" && (
               <Nav.Link as={Link} to="/crea-ricetta">Crea Ricetta</Nav.Link>
             )}
           </Nav>
