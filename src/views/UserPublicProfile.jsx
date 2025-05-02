@@ -33,32 +33,30 @@ const UserPublicProfile = () => {
   const isOwner = user?.id === utente.id;
 
   return (
-    <div className="container mt-5">
-      <h2>Profilo Pubblico</h2>
-      <div className="card p-4 shadow mb-4">
-        <h4>{utente.nome} {utente.cognome}</h4>
-        <p><strong>Email:</strong> {utente.email}</p>
+    <div className="container mt-5" style={{ maxWidth: "700px" }}>
+      <h3 className="mb-4">Profilo Utente</h3>
+
+      <div className="profile-box d-flex align-items-start mb-4">
         {utente.immagineProfilo && (
           <img
             src={`https://localhost:7081${utente.immagineProfilo}`}
             alt="Profilo utente"
-            style={{ width: "150px", height: "150px", objectFit: "cover", borderRadius: "50%" }}
+            className="profile-image-round me-4"
           />
         )}
-
-        {/* ✅ Bottone visibile solo se è il profilo dell'utente loggato */}
-        {isOwner && (
-          <button
-            className="btn btn-warning mt-3"
-            onClick={() => navigate("/profilo")}
-          >
-            ✏️ Modifica Profilo
-          </button>
-        )}
+        <div className="profile-info">
+          <h5>{utente.nome} {utente.cognome}</h5>
+          <p><strong>Email:</strong> {utente.email}</p>
+          <p><strong>Ruolo:</strong> {utente.ruolo}</p>
+          {isOwner && (
+            <button className="btn btn-warning mt-2" onClick={() => navigate("/profilo")}>
+              ✏️ Modifica Profilo
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* 🔥 Sezione ricette create */}
-      <h4>Ricette create da {utente.nome}:</h4>
+      <h4 className="mb-3">Ricette create da {utente.nome}:</h4>
       <ListaCreazioniUtente userId={utente.id} />
     </div>
   );

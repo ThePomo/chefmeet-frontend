@@ -4,13 +4,13 @@ import { fetchWithAuth } from "../utils/api";
 import ListaCreazioniUtente from "../components/ListaCreazioniUtente";
 
 const ChefPublicProfile = () => {
-  const { id } = useParams(); // Questo è il userId (stringa GUID)
+  const { id } = useParams(); // userId
   const [chef, setChef] = useState(null);
 
   useEffect(() => {
     const fetchChef = async () => {
       try {
-        const res = await fetchWithAuth(`/Chef/byUser/${id}`); // ✅ ENDPOINT CORRETTO
+        const res = await fetchWithAuth(`/Chef/byUser/${id}`);
         if (res.ok) {
           const data = await res.json();
           setChef(data);
@@ -29,36 +29,26 @@ const ChefPublicProfile = () => {
 
   return (
     <div className="container mt-5" style={{ maxWidth: "800px" }}>
-      <div className="card p-4 shadow">
-        <h2 className="mb-3">
-          {chef.nome} {chef.cognome}
-        </h2>
-        <p>
-          <strong>Email:</strong> {chef.email}
-        </p>
-        <p>
-          <strong>Biografia:</strong> {chef.bio}
-        </p>
-        {chef.città && (
-          <p>
-            <strong>Città:</strong> {chef.città}
-          </p>
-        )}
+      <div className="profile-box d-flex align-items-start mb-4">
         {chef.immagineProfilo && (
           <img
             src={`https://localhost:7081${chef.immagineProfilo}`}
             alt="Profilo chef"
-            className="img-fluid rounded mb-3"
-            style={{ maxHeight: "250px" }}
+            className="profile-image-round me-4"
           />
         )}
+        <div className="profile-info">
+          <h4>{chef.nome} {chef.cognome}</h4>
+          <p><strong>Email:</strong> {chef.email}</p>
+          <p><strong>Biografia:</strong> {chef.bio}</p>
+          {chef.città && <p><strong>Città:</strong> {chef.città}</p>}
+        </div>
       </div>
 
-      {/* 🔥 Sezione ricette */}
+      <h5 className="mb-3">Creazioni di {chef.nome}:</h5>
       <ListaCreazioniUtente userId={chef.userId} />
     </div>
   );
 };
 
 export default ChefPublicProfile;
-

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { fetchWithAuth } from "../utils/api";
-import { Card, Form, Button, Container } from "react-bootstrap";
+import { Form, Button, Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 const UserProfile = () => {
@@ -50,7 +50,7 @@ const UserProfile = () => {
 
     if (res.ok) {
       alert("Profilo aggiornato con successo.");
-      navigate(`/utente/${user.id}`); // ✅ Reindirizzamento al profilo pubblico
+      navigate(`/utente/${user.id}`);
     } else {
       alert("Errore durante l'aggiornamento del profilo.");
     }
@@ -62,26 +62,21 @@ const UserProfile = () => {
 
   return (
     <Container className="mt-4" style={{ maxWidth: "700px" }}>
-      <h3 className="mb-3">Profilo Utente</h3>
+      <h3 className="mb-4">Profilo Utente</h3>
+
       {profilo && (
-        <Card className="shadow-sm mb-4">
-          <Card.Img
-            variant="top"
-            src={
-              preview
-                ? preview
-                : `https://localhost:7081${profilo.immagineProfilo}`
-            }
-            style={{ height: "300px", objectFit: "cover" }}
+        <div className="profile-box d-flex align-items-start mb-4">
+          <img
+            src={preview ? preview : `https://localhost:7081${profilo.immagineProfilo}`}
+            alt="Profilo"
+            className="profile-image-round me-4"
           />
-          <Card.Body>
-            <Card.Title>
-              {profilo.nome} {profilo.cognome}
-            </Card.Title>
-            <Card.Text><strong>Email:</strong> {profilo.email}</Card.Text>
-            <Card.Text><strong>Ruolo:</strong> {profilo.ruolo}</Card.Text>
-          </Card.Body>
-        </Card>
+          <div className="profile-info">
+            <h5>{profilo.nome} {profilo.cognome}</h5>
+            <p><strong>Email:</strong> {profilo.email}</p>
+            <p><strong>Ruolo:</strong> {profilo.ruolo}</p>
+          </div>
+        </div>
       )}
 
       <h5 className="mb-3">Modifica dati</h5>
@@ -124,3 +119,4 @@ const UserProfile = () => {
 };
 
 export default UserProfile;
+

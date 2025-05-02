@@ -5,6 +5,7 @@ import { fetchWithAuth } from "../utils/api";
 
 const UserFormModal = ({ utente, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
+    id: "",
     nome: "",
     cognome: "",
     email: "",
@@ -14,6 +15,7 @@ const UserFormModal = ({ utente, onClose, onSuccess }) => {
   useEffect(() => {
     if (utente) {
       setFormData({
+        id: utente.id, // ✅ importante per PUT
         nome: utente.nome,
         cognome: utente.cognome,
         email: utente.email,
@@ -37,17 +39,22 @@ const UserFormModal = ({ utente, onClose, onSuccess }) => {
 
       const method = utente ? "PUT" : "POST";
 
+      const { nome, cognome, email, ruolo } = formData;
+      const id = utente?.id; 
+      
+
       const res = await fetchWithAuth(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ id, nome, cognome, email, ruolo }),
       });
 
       if (res.ok) {
         onSuccess();
         onClose();
       } else {
-        console.error("Errore nella gestione utente");
+        const error = await res.json();
+        console.error("Errore nella gestione utente:", error);
       }
     } catch (err) {
       console.error("Errore submit:", err);

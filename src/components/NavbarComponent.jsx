@@ -46,7 +46,7 @@ const NavbarComponent = () => {
 
   const handleNavigateToProfilo = (utente) => {
     if (utente.ruolo === "Chef" && utente.chefId) {
-      navigate(`/chef/${utente.chefId}`);
+      navigate(`/chef/${utente.id}`);
     } else {
       navigate(`/utente/${utente.id}`);
     }

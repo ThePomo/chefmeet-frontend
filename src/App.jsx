@@ -24,6 +24,9 @@ import MiePrenotazioni from "./views/MiePrenotazioni";
 import PrenotazioniRicevute from "./views/PrenotazioniRicevute";
 import AdminDashboard from "./views/AdminDashboard";
 import AdminRoute from "./utils/AdminRoute";
+import PrivateRoute from "./utils/PrivateRoute";
+
+
 
 const App = () => {
   return (
@@ -31,44 +34,34 @@ const App = () => {
       <NavbarComponent />
       <div className="container mt-4">
         <Routes>
-          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/eventi" element={<Eventi />} />
-          <Route path="/creazioni" element={<Creazioni />} />
-          <Route path="/prenotazioni" element={<Prenotazioni />} />
-          <Route path="/ricettario" element={<Ricettario />} />
-          <Route path="/ChefProfile" element={<ChefProfile />} />
-          <Route
-            path="/ModificaChefProfile"
-            element={<ModificaChefProfile />}
-          />
-          <Route path="/crea-evento" element={<CreaEvento />} />
-          <Route path="/miei-eventi" element={<MieiEventi />} />
-          <Route path="/chef/:id" element={<ChefPublicProfile />} />
-          <Route path="/utente/:id" element={<UserPublicProfile />} />
-          <Route path="/creazione/:id" element={<CreazioneDettaglio />} />
-          <Route path="/crea-ricetta" element={<CreaCreazione />} />
-          <Route
-            path="/modifica-creazione/:id"
-            element={<ModificaCreazione />}
-          />
-          <Route path="/modifica-ricetta/:id" element={<ModificaCreazione />} />
-          <Route path="/modifica-profilo" element={<ModificaProfilo />} />
-          <Route path="/profilo" element={<UserProfile />} />
-          <Route path="/mie-prenotazioni" element={<MiePrenotazioni />} />
-          <Route
-            path="/prenotazioni-ricevute"
-            element={<PrenotazioniRicevute />}
-          />
-          <Route
-            path="/admin"
-            element={
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
-            }
-          />
+
+          {/* ✅ HOME pubblica dinamica */}
+          <Route path="/" element={<Home />} />
+
+          {/* ROTTE PRIVATE */}
+          <Route path="/eventi" element={<PrivateRoute><Eventi /></PrivateRoute>} />
+          <Route path="/creazioni" element={<PrivateRoute><Creazioni /></PrivateRoute>} />
+          <Route path="/prenotazioni" element={<PrivateRoute><Prenotazioni /></PrivateRoute>} />
+          <Route path="/ricettario" element={<PrivateRoute><Ricettario /></PrivateRoute>} />
+          <Route path="/ChefProfile" element={<PrivateRoute><ChefProfile /></PrivateRoute>} />
+          <Route path="/ModificaChefProfile" element={<PrivateRoute><ModificaChefProfile /></PrivateRoute>} />
+          <Route path="/crea-evento" element={<PrivateRoute><CreaEvento /></PrivateRoute>} />
+          <Route path="/miei-eventi" element={<PrivateRoute><MieiEventi /></PrivateRoute>} />
+          <Route path="/chef/:id" element={<PrivateRoute><ChefPublicProfile /></PrivateRoute>} />
+          <Route path="/utente/:id" element={<PrivateRoute><UserPublicProfile /></PrivateRoute>} />
+          <Route path="/creazione/:id" element={<PrivateRoute><CreazioneDettaglio /></PrivateRoute>} />
+          <Route path="/crea-ricetta" element={<PrivateRoute><CreaCreazione /></PrivateRoute>} />
+          <Route path="/modifica-creazione/:id" element={<PrivateRoute><ModificaCreazione /></PrivateRoute>} />
+          <Route path="/modifica-ricetta/:id" element={<PrivateRoute><ModificaCreazione /></PrivateRoute>} />
+          <Route path="/modifica-profilo" element={<PrivateRoute><ModificaProfilo /></PrivateRoute>} />
+          <Route path="/profilo" element={<PrivateRoute><UserProfile /></PrivateRoute>} />
+          <Route path="/mie-prenotazioni" element={<PrivateRoute><MiePrenotazioni /></PrivateRoute>} />
+          <Route path="/prenotazioni-ricevute" element={<PrivateRoute><PrenotazioniRicevute /></PrivateRoute>} />
+
+          {/* ROTTA ADMIN */}
+          <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
         </Routes>
       </div>
     </Router>

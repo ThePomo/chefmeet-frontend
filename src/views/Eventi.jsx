@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchWithAuth } from "../utils/api";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Eventi = () => {
   const [eventi, setEventi] = useState([]);
@@ -70,60 +70,69 @@ const Eventi = () => {
   return (
     <div className="container mt-4">
       <h2 className="mb-3">Eventi Disponibili</h2>
+      <div className="gronda-filtri mb-4">
+  <div className="form-group me-3 mb-2">
+    <label className="form-label">📅 Data</label>
+    <input
+      type="date"
+      className="form-control"
+      value={dataFiltro}
+      onChange={(e) => setDataFiltro(e.target.value)}
+    />
+  </div>
+  <div className="form-group mb-2">
+    <label className="form-label">💰 Prezzo massimo</label>
+    <input
+      type="number"
+      className="form-control"
+      value={prezzoMax}
+      onChange={(e) => setPrezzoMax(e.target.value)}
+    />
+  </div>
+</div>
 
-      <div className="row mb-3">
-        <div className="col-md-6">
-          <label>Filtra per Data:</label>
-          <input type="date" className="form-control" value={dataFiltro} onChange={(e) => setDataFiltro(e.target.value)} />
-        </div>
-        <div className="col-md-6">
-          <label>Prezzo Massimo:</label>
-          <input type="number" className="form-control" value={prezzoMax} onChange={(e) => setPrezzoMax(e.target.value)} />
-        </div>
-      </div>
 
-      <div className="row">
+      <div className="gronda-grid">
         {eventiFiltrati.map((evento) => (
-          <div className="col-md-6 mb-4" key={evento.id}>
-            <div className="card shadow h-100">
+          <div key={evento.id} className="card-creazione">
+            <div className="position-relative">
               {evento.immagine && (
                 <img
                   src={`https://localhost:7081${evento.immagine}`}
-                  className="card-img-top"
-                  alt="evento"
-                  style={{ height: "200px", objectFit: "cover" }}
+                  alt={evento.titolo}
                 />
               )}
-              <div className="card-body">
-                <h5>{evento.titolo}</h5>
-                <p>{evento.descrizione}</p>
-                <p><strong>Data:</strong> {new Date(evento.data).toLocaleDateString()}</p>
-                <p><strong>Prezzo:</strong> €{evento.prezzo}</p>
-                <p>
-                  <strong>Chef:</strong>{" "}
-                  <span
-                    className="text-primary"
-                    role="button"
-                    onClick={() => navigate(`/chef/${evento.chefId}`)} 
-
-
-                    style={{ textDecoration: "underline" }}
-                  >
-                    {evento.chefNome}
-                  </span>
-                </p>
-
-                <div className="d-flex justify-content-between mt-3">
-               
-                  {user && (
-                    prenotati.includes(evento.id) ? (
-                      <button className="btn btn-danger" onClick={() => handleCancella(evento.id)}>Cancella Prenotazione</button>
-                    ) : (
-                      <button className="btn btn-success" onClick={() => handlePrenota(evento.id)}>Prenota</button>
-                    )
-                  )}
-                </div>
-              </div>
+            </div>
+            <div className="card-creazione-body">
+              <h5>{evento.titolo}</h5>
+              <p className="mb-1">{evento.descrizione}</p>
+              <p className="mb-1">
+                <strong>Data:</strong> {new Date(evento.data).toLocaleDateString()}
+              </p>
+              <p className="mb-1">
+                <strong>Prezzo:</strong> €{evento.prezzo}
+              </p>
+              <p className="mb-2">
+                <strong>Chef:</strong>{" "}
+                <span
+                  className="text-primary"
+                  style={{ cursor: "pointer", textDecoration: "underline" }}
+                  onClick={() => navigate(`/chef/${evento.chefUserId}`)}
+                >
+                  {evento.chefNome}
+                </span>
+              </p>
+              {user && (
+                prenotati.includes(evento.id) ? (
+                  <button className="btn btn-danger btn-sm w-100" onClick={() => handleCancella(evento.id)}>
+                    Cancella Prenotazione
+                  </button>
+                ) : (
+                  <button className="btn btn-success btn-sm w-100" onClick={() => handlePrenota(evento.id)}>
+                    Prenota
+                  </button>
+                )
+              )}
             </div>
           </div>
         ))}

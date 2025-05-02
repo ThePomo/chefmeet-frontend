@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import logoChefMeet from "../assets/img/1logocheefmeetcompleto.png";
 
 const Home = () => {
-  const [user] = useState(() => JSON.parse(localStorage.getItem("user")));  // ✅ Legge user solo una volta
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
   const navigate = useNavigate();
 
   const [contenuti, setContenuti] = useState([]);
@@ -14,8 +14,17 @@ const Home = () => {
 
   const ricetteTopRef = useRef(null);
 
+  // 🔁 Monitora il localStorage per logout/login
   useEffect(() => {
-    if (!user?.id) return;  // ✅ Controlla subito se esiste un user valido
+    const interval = setInterval(() => {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      setUser(storedUser);
+    }, 300);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (!user?.id) return;
 
     const fetchDati = async () => {
       try {
@@ -23,7 +32,7 @@ const Home = () => {
           fetchWithAuth("/Evento"),
           fetchWithAuth("/Creazione"),
           fetchWithAuth(`/Prenotazione/utente/${user.id}`),
-          fetchWithAuth(`/Like/utente/${user.id}`)
+          fetchWithAuth(`/Like/utente/${user.id}`),
         ]);
 
         if (resEventi.ok && resRicette.ok) {
@@ -31,17 +40,25 @@ const Home = () => {
           const ricette = await resRicette.json();
 
           const eventiConTipo = eventi.map((e) => ({ ...e, tipo: "evento" }));
-          const ricetteConTipo = ricette.map((r) => ({ ...r, tipo: "ricetta" }));
+          const ricetteConTipo = ricette.map((r) => ({
+            ...r,
+            tipo: "ricetta",
+          }));
 
           const unione = [...eventiConTipo, ...ricetteConTipo];
-          const ordinati = unione.sort((a, b) => new Date(b.data) - new Date(a.data));
+          const ordinati = unione.sort(
+            (a, b) => new Date(b.data) - new Date(a.data)
+          );
           setContenuti(ordinati);
 
           if (!ricetteTopRef.current) {
             const ricetteCopy = [...ricette];
             for (let i = ricetteCopy.length - 1; i > 0; i--) {
               const j = Math.floor(Math.random() * (i + 1));
-              [ricetteCopy[i], ricetteCopy[j]] = [ricetteCopy[j], ricetteCopy[i]];
+              [ricetteCopy[i], ricetteCopy[j]] = [
+                ricetteCopy[j],
+                ricetteCopy[i],
+              ];
             }
             ricetteTopRef.current = ricetteCopy.slice(0, 2);
           }
@@ -57,14 +74,13 @@ const Home = () => {
           const likes = await resLike.json();
           setLikeUtente(likes.map((l) => l.creazioneId));
         }
-
       } catch (error) {
         console.error("Errore nel caricamento dei dati:", error);
       }
     };
 
     fetchDati();
-  }, [user?.id]);  // ✅ Dipendi SOLO da user.id
+  }, [user?.id]);
 
   const handlePrenota = async (eventoId) => {
     try {
@@ -111,11 +127,8 @@ const Home = () => {
         const resDelete = await fetchWithAuth(`/Like/${creazioneId}`, {
           method: "DELETE",
         });
-
         if (resDelete.ok || resDelete.status === 404) {
           setLikeUtente((prev) => prev.filter((id) => id !== creazioneId));
-        } else {
-          console.error("Errore nella cancellazione del like");
         }
       } catch (error) {
         console.error("Errore nel DELETE like:", error);
@@ -127,8 +140,6 @@ const Home = () => {
         });
         if (res.ok) {
           setLikeUtente((prev) => [...prev, creazioneId]);
-        } else {
-          console.error("Errore nell'aggiunta del like");
         }
       } catch (error) {
         console.error("Errore nel POST like:", error);
@@ -146,7 +157,10 @@ const Home = () => {
           className="mb-4"
         />
         <h2>Benvenuto su ChefMeet!</h2>
-        <p>Accedi o registrati per scoprire eventi, chef e ricette da tutto il mondo!</p>
+        <p>
+          Accedi o registrati per scoprire eventi, chef e ricette da tutto il
+          mondo!
+        </p>
       </div>
     );
   }
@@ -155,11 +169,13 @@ const Home = () => {
     <div className="container mt-4">
       <div className="row">
         <div className="col-md-2 d-none d-md-block" />
-
         <div className="col-md-7">
           <h3 className="mb-4">📰 Ultime novità</h3>
           {contenuti.map((item) => (
-            <div key={`${item.tipo}-${item.id}`} className="card mb-4 shadow-sm">
+            <div
+              key={`${item.tipo}-${item.id}`}
+              className="card mb-4 shadow-sm"
+            >
               {item.immagine && (
                 <img
                   src={`https://localhost:7081${item.immagine}`}
@@ -182,20 +198,25 @@ const Home = () => {
                   )}
                 </h5>
                 <p className="card-text">{item.descrizione}</p>
-                <p className="text-muted mb-1">
-                  {item.tipo === "evento" ? "Evento" : "Ricetta"} • {new Date(item.data).toLocaleDateString()}
-                </p>
+
+                {item.tipo === "evento" && (
+                  <p className="mb-1">
+                    📅 Data dell'evento •{" "}
+                    {new Date(item.data).toLocaleDateString()}
+                  </p>
+                )}
+
                 <p className="text-muted">
                   {item.tipo === "evento" ? (
                     <span
-                      style={{ cursor: "pointer", color: "darkred", textDecoration: "underline" }}
+                      style={{ cursor: "pointer", color: "darkred" }}
                       onClick={() => navigate(`/chef/${item.chefUserId}`)}
                     >
                       Chef: {item.chefNome}
                     </span>
                   ) : (
                     <span
-                      style={{ cursor: "pointer", color: "darkgreen", textDecoration: "underline" }}
+                      style={{ cursor: "pointer", color: "darkgreen" }}
                       onClick={() => navigate(`/utente/${item.creatoreId}`)}
                     >
                       Autore: {item.autore}
@@ -203,24 +224,33 @@ const Home = () => {
                   )}
                 </p>
 
-                {item.tipo === "evento" && (
-                  prenotazioni.includes(item.id) ? (
-                    <button className="btn btn-danger me-2" onClick={() => handleCancella(item.id)}>
+                {item.tipo === "evento" &&
+                  (prenotazioni.includes(item.id) ? (
+                    <button
+                      className="btn btn-danger me-2"
+                      onClick={() => handleCancella(item.id)}
+                    >
                       Cancella Prenotazione
                     </button>
                   ) : (
-                    <button className="btn btn-success me-2" onClick={() => handlePrenota(item.id)}>
+                    <button
+                      className="btn btn-success me-2"
+                      onClick={() => handlePrenota(item.id)}
+                    >
                       Prenota
                     </button>
-                  )
-                )}
-
+                  ))}
                 {item.tipo === "ricetta" && (
                   <button
-                    className={`btn ${likeUtente.includes(item.id) ? "btn-danger" : "btn-outline-secondary"}`}
+                    className={`btn ${
+                      likeUtente.includes(item.id)
+                        ? "btn-danger"
+                        : "btn-outline-secondary"
+                    }`}
                     onClick={() => handleLike(item.id)}
                   >
-                    ❤️ {likeUtente.includes(item.id) ? "Non mi piace più" : "Like"}
+                    ❤️{" "}
+                    {likeUtente.includes(item.id) ? "Non mi piace più" : "Like"}
                   </button>
                 )}
               </div>
@@ -242,7 +272,7 @@ const Home = () => {
               )}
               <div className="card-body p-2">
                 <h6
-                  className="card-title text-primary"
+                  className="card-title"
                   style={{ cursor: "pointer" }}
                   onClick={() => navigate(`/creazione/${ricetta.id}`)}
                 >

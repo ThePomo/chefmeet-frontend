@@ -1,6 +1,4 @@
-// src/views/Ricettario.jsx
 import React, { useEffect, useState } from "react";
-import { Card, Form, Row, Col } from "react-bootstrap";
 import { fetchWithAuth } from "../utils/api";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -62,54 +60,54 @@ const Ricettario = () => {
 
   return (
     <div className="container mt-4">
-      <h2>Ricettario</h2>
+      <h2 className="mb-3">Ricettario</h2>
 
-      <Form className="my-3">
-        <Row className="align-items-center">
-          <Col md={4}>
-            <Form.Control
-              type="text"
-              placeholder="Cerca ricetta..."
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-            />
-          </Col>
-          <Col md={2}>
-            <Form.Check
-              type="checkbox"
-              label="Solo Chef"
-              checked={soloChef}
-              onChange={(e) => setSoloChef(e.target.checked)}
-            />
-          </Col>
-        </Row>
-      </Form>
+      <div className="row mb-3">
+        <div className="col-md-6">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Cerca ricetta..."
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+          />
+        </div>
+        <div className="col-md-3 d-flex align-items-center">
+          <input
+            type="checkbox"
+            className="form-check-input me-2"
+            id="soloChef"
+            checked={soloChef}
+            onChange={(e) => setSoloChef(e.target.checked)}
+          />
+          <label htmlFor="soloChef" className="form-check-label">
+            Solo Chef
+          </label>
+        </div>
+      </div>
 
-      <Row xs={1} md={2} lg={3} className="g-4">
+      <div className="gronda-grid mt-4">
         {ricette.map((ricetta) => (
-          <Col key={ricetta.id}>
-            <Card className="h-100 shadow-sm">
-              <Card.Img
-                variant="top"
+          <div key={ricetta.id} className="card-creazione">
+            <div className="position-relative">
+              <img
                 src={`https://localhost:7081${ricetta.immagine}`}
-                style={{ objectFit: "cover", height: "200px" }}
+                alt={ricetta.nome}
               />
-              <Card.Body>
-                <Card.Title>{ricetta.nome}</Card.Title>
-                <Card.Text>{ricetta.descrizione.slice(0, 100)}...</Card.Text>
-              </Card.Body>
-              <Card.Footer className="d-flex justify-content-between align-items-center">
-                <div>
-                  <small className="text-muted">Di {ricetta.autore}</small>
-                  <br />
-                  <Link
-                    to={`/creazione/${ricetta.id}`}
-                    className="btn btn-sm btn-outline-primary mt-2"
-                  >
-                    Dettagli
-                  </Link>
-                </div>
-
+              {ricetta.ruoloCreatore === "Chef" && (
+                <div className="etichetta-pro">Chef</div>
+              )}
+            </div>
+            <div className="card-creazione-body">
+              <h5>{ricetta.nome}</h5>
+              <p>{ricetta.autore}</p>
+              <div className="d-flex justify-content-between align-items-center mt-2">
+                <Link
+                  to={`/creazione/${ricetta.id}`}
+                  className="btn btn-sm btn-outline-primary"
+                >
+                  Dettagli
+                </Link>
                 {isAuthenticated && (
                   <button
                     className={`like-button ${likeUtente.includes(ricetta.id) ? "liked" : ""}`}
@@ -123,11 +121,11 @@ const Ricettario = () => {
                     {likeUtente.includes(ricetta.id) ? "❤️" : "🤍"} {ricetta.numeroLike}
                   </button>
                 )}
-              </Card.Footer>
-            </Card>
-          </Col>
+              </div>
+            </div>
+          </div>
         ))}
-      </Row>
+      </div>
     </div>
   );
 };
