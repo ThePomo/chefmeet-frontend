@@ -25,6 +25,12 @@ import PrenotazioniRicevute from "./views/PrenotazioniRicevute";
 import AdminDashboard from "./views/AdminDashboard";
 import AdminRoute from "./utils/AdminRoute";
 import PrivateRoute from "./utils/PrivateRoute";
+import EventoDettaglio from "./views/EventoDettaglio";
+import ModificaEvento from "./views/ModificaEvento";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
 
 
 
@@ -32,6 +38,16 @@ const App = () => {
   return (
     <Router>
       <NavbarComponent />
+      
+       {/* ✅ Contenitore toast */}
+       <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+      />
       <div className="container mt-4">
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -59,6 +75,11 @@ const App = () => {
           <Route path="/profilo" element={<PrivateRoute><UserProfile /></PrivateRoute>} />
           <Route path="/mie-prenotazioni" element={<PrivateRoute><MiePrenotazioni /></PrivateRoute>} />
           <Route path="/prenotazioni-ricevute" element={<PrivateRoute><PrenotazioniRicevute /></PrivateRoute>} />
+          <Route path="/evento/:id" element={<EventoDettaglio />} />
+          <Route path="/evento/modifica/:id" element={<ModificaEvento />} />
+      
+
+
 
           {/* ROTTA ADMIN */}
           <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />

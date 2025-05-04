@@ -25,7 +25,9 @@ const CreazioneDettaglio = () => {
   };
 
   const handleDelete = async () => {
-    const conferma = window.confirm("Sei sicuro di voler eliminare questa ricetta?");
+    const conferma = window.confirm(
+      "Sei sicuro di voler eliminare questa ricetta?"
+    );
     if (!conferma) return;
 
     try {
@@ -79,14 +81,19 @@ const CreazioneDettaglio = () => {
               {creazione.autore}
             </Link>
           </Card.Text>
-          <Card.Text>{creazione.descrizione}</Card.Text>
+          <Card.Text style={{ whiteSpace: "pre-line" }}>
+            {creazione.descrizione}
+          </Card.Text>
           <Card.Text>
             <strong>❤️ Like:</strong> {creazione.numeroLike}
           </Card.Text>
 
           {èAutore && (
             <div className="d-flex gap-2 mt-3">
-              <Button variant="warning" onClick={() => navigate(`/modifica-ricetta/${creazione.id}`)}>
+              <Button
+                variant="warning"
+                onClick={() => navigate(`/modifica-ricetta/${creazione.id}`)}
+              >
                 Modifica
               </Button>
               <Button variant="danger" onClick={handleDelete}>

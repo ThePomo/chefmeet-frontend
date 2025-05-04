@@ -104,7 +104,7 @@ const Ricettario = () => {
               <div className="d-flex justify-content-between align-items-center mt-2">
                 <Link
                   to={`/creazione/${ricetta.id}`}
-                  className="btn btn-sm btn-outline-primary"
+                  className="btn btn-sm btn-outline-success"
                 >
                   Dettagli
                 </Link>

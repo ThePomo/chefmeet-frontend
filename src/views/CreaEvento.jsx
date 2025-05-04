@@ -40,7 +40,7 @@ const CreaEvento = () => {
 
       if (res.ok) {
         alert("Evento creato con successo!");
-        navigate("/MieiEventi");
+        navigate("/miei-eventi");
       } else {
         const error = await res.text();
         alert("Errore nella creazione: " + error);

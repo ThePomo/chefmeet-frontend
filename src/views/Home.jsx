@@ -60,7 +60,7 @@ const Home = () => {
                 ricetteCopy[i],
               ];
             }
-            ricetteTopRef.current = ricetteCopy.slice(0, 2);
+            ricetteTopRef.current = ricetteCopy.slice(0, 3);
           }
           setRicetteTop(ricetteTopRef.current);
         }
@@ -197,7 +197,9 @@ const Home = () => {
                     item.titolo
                   )}
                 </h5>
-                <p className="card-text">{item.descrizione}</p>
+                <p className="card-text" style={{ whiteSpace: "pre-line" }}>
+  {item.descrizione}
+</p>
 
                 {item.tipo === "evento" && (
                   <p className="mb-1">

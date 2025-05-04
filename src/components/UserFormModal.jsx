@@ -1,4 +1,3 @@
-// src/components/UserFormModal.jsx
 import React, { useEffect, useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import { fetchWithAuth } from "../utils/api";
@@ -9,18 +8,21 @@ const UserFormModal = ({ utente, onClose, onSuccess }) => {
     nome: "",
     cognome: "",
     email: "",
-    ruolo: "Utente", // default
+    ruolo: "Utente",
+    password: "", 
   });
 
   useEffect(() => {
     if (utente) {
-      setFormData({
-        id: utente.id, // ✅ importante per PUT
+      setFormData((prev) => ({
+        ...prev,
+        id: utente.id,
         nome: utente.nome,
         cognome: utente.cognome,
         email: utente.email,
         ruolo: utente.ruolo,
-      });
+        password: "", 
+      }));
     }
   }, [utente]);
 
@@ -38,15 +40,16 @@ const UserFormModal = ({ utente, onClose, onSuccess }) => {
         : "/Admin/crea-utente";
 
       const method = utente ? "PUT" : "POST";
+      const { id, nome, cognome, email, ruolo, password } = formData;
 
-      const { nome, cognome, email, ruolo } = formData;
-      const id = utente?.id; 
-      
+      const body = utente
+        ? { id, nome, cognome, email, ruolo }
+        : { nome, cognome, email, ruolo, password };
 
       const res = await fetchWithAuth(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, nome, cognome, email, ruolo }),
+        body: JSON.stringify(body),
       });
 
       if (res.ok) {
@@ -109,6 +112,19 @@ const UserFormModal = ({ utente, onClose, onSuccess }) => {
           <option value="Admin">Admin</option>
         </Form.Select>
       </Form.Group>
+
+      {!utente && (
+        <Form.Group controlId="password" className="mb-3">
+          <Form.Label>Password</Form.Label>
+          <Form.Control
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+      )}
 
       <Button variant="success" type="submit">
         {utente ? "Salva Modifiche" : "Crea Utente"}

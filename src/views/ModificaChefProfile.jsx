@@ -31,7 +31,9 @@ const ModificaChefProfile = () => {
             bio: data.bio,
             città: data.città
           });
-          setPreview(`https://localhost:7081${data.immagineProfilo}`);
+          if (data.immagineProfilo) {
+            setPreview(`https://localhost:7081${data.immagineProfilo}`);
+          }
         }
       } catch (err) {
         console.error("Errore nel caricamento del profilo:", err);
@@ -57,14 +59,12 @@ const ModificaChefProfile = () => {
     e.preventDefault();
     const formData = new FormData();
 
-    formData.append("Id", form.id);
-    formData.append("Nome", form.nome);
-    formData.append("Cognome", form.cognome);
-    formData.append("Email", form.email);
-    formData.append("Bio", form.bio);
-    formData.append("Città", form.città);
+    formData.append("nome", form.nome);
+    formData.append("cognome", form.cognome);
+    formData.append("bio", form.bio);
+    formData.append("città", form.città);
     if (immagineFile) {
-      formData.append("ImmagineProfilo", immagineFile);
+      formData.append("immagineProfilo", immagineFile);
     }
 
     try {
@@ -87,40 +87,82 @@ const ModificaChefProfile = () => {
 
   return (
     <div className="container mt-5" style={{ maxWidth: "700px" }}>
-      <h2>Modifica Profilo Chef</h2>
+      <h2 className="mb-4">Modifica Profilo Chef</h2>
       <form onSubmit={handleSubmit} encType="multipart/form-data">
         <div className="mb-3">
-          <label>Nome</label>
-          <input name="nome" value={form.nome} onChange={handleChange} className="form-control" />
+          <label className="form-label">Nome</label>
+          <input
+            name="nome"
+            value={form.nome}
+            onChange={handleChange}
+            className="form-control"
+            required
+          />
         </div>
         <div className="mb-3">
-          <label>Cognome</label>
-          <input name="cognome" value={form.cognome} onChange={handleChange} className="form-control" />
+          <label className="form-label">Cognome</label>
+          <input
+            name="cognome"
+            value={form.cognome}
+            onChange={handleChange}
+            className="form-control"
+            required
+          />
         </div>
         <div className="mb-3">
-          <label>Email</label>
-          <input name="email" value={form.email} disabled className="form-control" />
+          <label className="form-label">Email</label>
+          <input
+            name="email"
+            value={form.email}
+            disabled
+            className="form-control"
+          />
         </div>
         <div className="mb-3">
-          <label>Biografia</label>
-          <textarea name="bio" value={form.bio} onChange={handleChange} className="form-control" />
+          <label className="form-label">Biografia</label>
+          <textarea
+            name="bio"
+            value={form.bio}
+            onChange={handleChange}
+            className="form-control"
+            rows={4}
+            required
+          />
         </div>
         <div className="mb-3">
-          <label>Città</label>
-          <input name="città" value={form.città} onChange={handleChange} className="form-control" />
+          <label className="form-label">Città</label>
+          <input
+            name="città"
+            value={form.città}
+            onChange={handleChange}
+            className="form-control"
+            required
+          />
         </div>
         <div className="mb-3">
-          <label>Immagine Profilo</label>
-          <input type="file" accept="image/*" className="form-control" onChange={handleFileChange} />
+          <label className="form-label">Immagine Profilo</label>
+          <input
+            type="file"
+            accept="image/*"
+            className="form-control"
+            onChange={handleFileChange}
+          />
         </div>
 
         {preview && (
           <div className="mb-3 text-center">
-            <img src={preview} alt="Anteprima" className="img-fluid rounded" style={{ maxHeight: "200px" }} />
+            <img
+              src={preview}
+              alt="Anteprima"
+              className="img-fluid rounded shadow"
+              style={{ maxHeight: "250px" }}
+            />
           </div>
         )}
 
-        <button className="btn btn-primary w-100">Salva modifiche</button>
+        <button type="submit" className="btn btn-primary w-100">
+          Salva modifiche
+        </button>
       </form>
     </div>
   );
