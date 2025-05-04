@@ -96,3 +96,6 @@ PUT	/api/Creazione/{id}	Modifica ricetta (facoltativa immagine)
 🧑‍💻 Autore
 Realizzato con ❤️ come progetto full stack completo, per mostrare le competenze in React, .NET, SQL, autenticazione JWT e UI moderna.
 
+Link al Back-End https://github.com/ThePomo/ChefMeet-back-end
+
+Made By Giuseppe Pomo
