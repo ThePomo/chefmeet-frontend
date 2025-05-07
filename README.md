@@ -81,8 +81,6 @@ PUT	/api/Creazione/{id}	Modifica ricetta (facoltativa immagine)
 
 🔄 In sviluppo (WIP)
 
-    Sistema di recenzioni 
-
     Sistema chat privata tra utenti
 
     sistema commenti
