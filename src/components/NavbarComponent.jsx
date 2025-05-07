@@ -1,6 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Navbar, Nav, Container, Form, ListGroup } from "react-bootstrap";
+import {
+  Navbar,
+  Nav,
+  Container,
+  Form,
+  ListGroup,
+  Dropdown,
+} from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/userSlice";
 import { fetchWithAuth } from "../utils/api";
@@ -13,6 +20,21 @@ const NavbarComponent = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [risultati, setRisultati] = useState([]);
+  const [datiUtente, setDatiUtente] = useState(null);
+
+  // ✅ Fetch per aggiornare l'immagine profilo e il ruolo (opzionale)
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      if (user?.id) {
+        const res = await fetchWithAuth(`/Utenti/${user.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setDatiUtente(data);
+        }
+      }
+    };
+    fetchUserInfo();
+  }, [user]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -58,22 +80,23 @@ const NavbarComponent = () => {
     <Navbar expand="lg" style={{ backgroundColor: "#04ABA2" }} variant="dark">
       <Container>
         <Navbar.Brand as={Link} to="/">
-          <img src={logo} alt="Logo" className="align-middle" style={{ height: "40px", marginTop: "5px" }} />
+          <img
+            src={logo}
+            alt="Logo"
+            style={{ height: "40px", marginTop: "5px" }}
+          />
         </Navbar.Brand>
+
         <Navbar.Toggle aria-controls="navbar-nav" />
         <Navbar.Collapse id="navbar-nav">
           <Nav className="me-auto">
-            {isAuthenticated && (
-              <Nav.Link as={Link} to="/">Home</Nav.Link>
-            )}
-
+            {isAuthenticated && <Nav.Link as={Link} to="/">Home</Nav.Link>}
             {isAuthenticated && (
               <>
                 <Nav.Link as={Link} to="/eventi">Eventi</Nav.Link>
                 <Nav.Link as={Link} to="/ricettario">Ricettario</Nav.Link>
               </>
             )}
-
             {isAuthenticated && user?.ruolo === "Chef" && (
               <>
                 <Nav.Link as={Link} to="/ChefProfile">Profilo</Nav.Link>
@@ -82,20 +105,15 @@ const NavbarComponent = () => {
                 <Nav.Link as={Link} to="/prenotazioni-ricevute">Prenotazioni ricevute</Nav.Link>
               </>
             )}
-
             {isAuthenticated && user?.ruolo === "Utente" && (
               <>
                 <Nav.Link as={Link} to={`/utente/${user.id}`}>Profilo</Nav.Link>
                 <Nav.Link as={Link} to="/mie-prenotazioni">Le mie prenotazioni</Nav.Link>
               </>
             )}
-
             {isAuthenticated && user?.ruolo === "Admin" && (
-              <>
-                <Nav.Link as={Link} to="/admin">Dashboard Admin</Nav.Link>
-              </>
+              <Nav.Link as={Link} to="/admin">Dashboard Admin</Nav.Link>
             )}
-
             {isAuthenticated && user?.ruolo !== "Admin" && (
               <Nav.Link as={Link} to="/crea-ricetta">Crea Ricetta</Nav.Link>
             )}
@@ -109,7 +127,6 @@ const NavbarComponent = () => {
                 className="me-2"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                autoComplete="off"
               />
               {risultati.length > 0 && (
                 <ListGroup className="position-absolute w-100" style={{ top: "100%", zIndex: 999 }}>
@@ -141,16 +158,42 @@ const NavbarComponent = () => {
             </Form>
           )}
 
-          <Nav>
-            {!isAuthenticated ? (
-              <>
-                <Nav.Link as={Link} to="/login">Login</Nav.Link>
-                <Nav.Link as={Link} to="/register">Registrati</Nav.Link>
-              </>
-            ) : (
-              <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
-            )}
-          </Nav>
+          {isAuthenticated && datiUtente ? (
+            <Dropdown align="end">
+              <Dropdown.Toggle
+                variant="link"
+                className="text-light d-flex align-items-center border-0"
+                style={{ textDecoration: "none" }}
+              >
+                {datiUtente.immagineProfilo && (
+                  <img
+                    src={`https://localhost:7081${datiUtente.immagineProfilo}`}
+                    alt="Profilo"
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      marginRight: "8px"
+                    }}
+                  />
+                )}
+                <span>{datiUtente.nome}</span>
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu>
+              <Dropdown.Item as={Link} to={datiUtente.ruolo === "Chef" ? "/ChefProfile" : `/utente/${datiUtente.id}`}>
+
+                  Profilo
+                </Dropdown.Item>
+                <Dropdown.Item as={Link} to="/modifica-profilo">
+                  Modifica Profilo
+                </Dropdown.Item>
+                <Dropdown.Divider />
+                <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          ) : null}
         </Navbar.Collapse>
       </Container>
     </Navbar>
