@@ -46,10 +46,19 @@ const MiePrenotazioni = () => {
           {prenotazioni.map((p) => (
             <div className="col-md-6 mb-4" key={p.id}>
               <Card className="p-3 border-0 shadow-sm rounded-4 h-100">
+                {p.eventoImmagine && (
+                  <Card.Img
+                    variant="top"
+                    src={`https://localhost:7081${p.eventoImmagine}`}
+                    style={{ height: "200px", objectFit: "cover", borderRadius: "10px" }}
+                    alt="Evento"
+                  />
+                )}
                 <Card.Body>
                   <Card.Title className="mb-2">{p.eventoTitolo}</Card.Title>
                   <Card.Text className="mb-1">
-                    <strong>Data:</strong> {new Date(p.dataPrenotazione).toLocaleDateString()}
+                    <strong>Data:</strong>{" "}
+                    {new Date(p.dataPrenotazione).toLocaleDateString()}
                   </Card.Text>
                   <Button
                     variant="danger"

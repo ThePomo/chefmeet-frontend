@@ -29,6 +29,7 @@ import EventoDettaglio from "./views/EventoDettaglio";
 import ModificaEvento from "./views/ModificaEvento";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import FooterComponent from "./components/FooterComponent";
 
 
 
@@ -85,6 +86,7 @@ const App = () => {
           <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
         </Routes>
       </div>
+      <FooterComponent />
     </Router>
   );
 };

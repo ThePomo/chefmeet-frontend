@@ -14,7 +14,6 @@ const Home = () => {
 
   const ricetteTopRef = useRef(null);
 
-  // 🔁 Monitora il localStorage per logout/login
   useEffect(() => {
     const interval = setInterval(() => {
       const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -40,10 +39,15 @@ const Home = () => {
           const ricette = await resRicette.json();
 
           const eventiConTipo = eventi.map((e) => ({ ...e, tipo: "evento" }));
-          const ricetteConTipo = ricette.map((r) => ({
-            ...r,
-            tipo: "ricetta",
-          }));
+
+          const now = Date.now();
+          const ricetteConTipo = [...ricette]
+            .reverse()
+            .map((r, index) => ({
+              ...r,
+              tipo: "ricetta",
+              data: new Date(now - index * 1000),
+            }));
 
           const unione = [...eventiConTipo, ...ricetteConTipo];
           const ordinati = unione.sort(
@@ -198,8 +202,8 @@ const Home = () => {
                   )}
                 </h5>
                 <p className="card-text" style={{ whiteSpace: "pre-line" }}>
-  {item.descrizione}
-</p>
+                  {item.descrizione}
+                </p>
 
                 {item.tipo === "evento" && (
                   <p className="mb-1">
@@ -261,29 +265,39 @@ const Home = () => {
         </div>
 
         <div className="col-md-3">
-          <h4 className="mb-3">🍝 Le ricette più interessanti</h4>
-          {ricetteTop.map((ricetta) => (
-            <div key={ricetta.id} className="card mb-3 shadow-sm">
-              {ricetta.immagine && (
-                <img
-                  src={`https://localhost:7081${ricetta.immagine}`}
-                  className="card-img-top"
-                  alt={ricetta.nome}
-                  style={{ height: "150px", objectFit: "cover" }}
-                />
-              )}
-              <div className="card-body p-2">
-                <h6
-                  className="card-title"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => navigate(`/creazione/${ricetta.id}`)}
-                >
-                  {ricetta.nome}
-                </h6>
-              </div>
-            </div>
-          ))}
+  <div
+    className="d-flex flex-column align-items-center"
+   
+  >
+    <h4 className="mb-3 text-center">🍝 Le ricette più interessanti</h4>
+    {ricetteTop.map((ricetta) => (
+      <div
+        key={ricetta.id}
+        className="card mb-3 shadow-sm"
+        style={{ width: "100%", maxWidth: "260px",  }} 
+      >
+        {ricetta.immagine && (
+          <img
+            src={`https://localhost:7081${ricetta.immagine}`}
+            className="card-img-top"
+            alt={ricetta.nome}
+            style={{ height: "150px", objectFit: "cover" }}
+          />
+        )}
+        <div className="card-body p-2 text-center">
+          <h6
+            className="card-title"
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate(`/creazione/${ricetta.id}`)}
+          >
+            {ricetta.nome}
+          </h6>
         </div>
+      </div>
+    ))}
+  </div>
+</div>
+
       </div>
     </div>
   );

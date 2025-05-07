@@ -70,82 +70,78 @@ const Eventi = () => {
   return (
     <div className="container mt-4">
       <h2 className="mb-3">Eventi Disponibili</h2>
-      <div className="gronda-filtri mb-4">
-  <div className="form-group me-3 mb-2">
-    <label className="form-label">📅 Data</label>
-    <input
-      type="date"
-      className="form-control"
-      value={dataFiltro}
-      onChange={(e) => setDataFiltro(e.target.value)}
-    />
-  </div>
-  <div className="form-group mb-2">
-    <label className="form-label">💰 Prezzo massimo</label>
-    <input
-      type="number"
-      className="form-control"
-      value={prezzoMax}
-      onChange={(e) => setPrezzoMax(e.target.value)}
-    />
-  </div>
-</div>
 
+      <div className="gronda-filtri mb-4">
+        <div className="form-group me-3 mb-2">
+          <label className="form-label">📅 Data</label>
+          <input
+            type="date"
+            className="form-control"
+            value={dataFiltro}
+            onChange={(e) => setDataFiltro(e.target.value)}
+          />
+        </div>
+        <div className="form-group mb-2">
+          <label className="form-label">💰 Prezzo massimo</label>
+          <input
+            type="number"
+            className="form-control"
+            value={prezzoMax}
+            onChange={(e) => setPrezzoMax(e.target.value)}
+          />
+        </div>
+      </div>
 
       <div className="gronda-grid">
         {eventiFiltrati.map((evento) => (
-          <div key={evento.id} className="card-creazione">
-          <div
-            className="position-relative"
-            onClick={() => navigate(`/evento/${evento.id}`)}
-            style={{ cursor: "pointer" }}
-          >
-            {evento.immagine && (
-              <img
-                src={`https://localhost:7081${evento.immagine}`}
-                alt={evento.titolo}
-              />
-            )}
-          </div>
-          <div className="card-creazione-body">
-            <h5
-              className="text-success"
-              style={{ cursor: "pointer", }}
+          <div key={evento.id} className="card-evento">
+            <div
+              className="evento-img-wrapper"
               onClick={() => navigate(`/evento/${evento.id}`)}
+              style={{ cursor: "pointer" }}
             >
-              {evento.titolo}
-            </h5>
-            <p className="mb-1">{evento.descrizione}</p>
-            <p className="mb-1">
-              <strong>Data:</strong> {new Date(evento.data).toLocaleDateString()}
-            </p>
-            <p className="mb-1">
-              <strong>Prezzo:</strong> €{evento.prezzo}
-            </p>
-            <p className="mb-2">
-              <strong>Chef:</strong>{" "}
-              <span
-                className="text-success"
-                style={{ cursor: "pointer", }}
-                onClick={() => navigate(`/chef/${evento.chefUserId}`)}
-              >
-                {evento.chefNome}
-              </span>
-            </p>
-            {user && (
-              prenotati.includes(evento.id) ? (
-                <button className="btn btn-danger btn-sm w-100" onClick={() => handleCancella(evento.id)}>
-                  Cancella Prenotazione
-                </button>
-              ) : (
-                <button className="btn btn-success btn-sm w-100" onClick={() => handlePrenota(evento.id)}>
-                  Prenota
-                </button>
-              )
-            )}
+              {evento.immagine && (
+                <img
+                  src={`https://localhost:7081${evento.immagine}`}
+                  alt={evento.titolo}
+                  className="evento-img"
+                />
+              )}
+            </div>
+            <div className="evento-body">
+              <h5 className="evento-title" onClick={() => navigate(`/evento/${evento.id}`)}>
+                {evento.titolo}
+              </h5>
+              <p className="mb-1">{evento.descrizione}</p>
+              <p className="mb-1">
+                <strong>Data:</strong> {new Date(evento.data).toLocaleDateString()}
+              </p>
+              <p className="mb-1">
+                <strong>Prezzo:</strong> €{evento.prezzo}
+              </p>
+              <p className="mb-2">
+                <strong>Chef:</strong>{" "}
+                <span
+                  className="text-success"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => navigate(`/chef/${evento.chefUserId}`)}
+                >
+                  {evento.chefNome}
+                </span>
+              </p>
+              {user && (
+                prenotati.includes(evento.id) ? (
+                  <button className="btn btn-danger btn-sm w-100" onClick={() => handleCancella(evento.id)}>
+                    Cancella Prenotazione
+                  </button>
+                ) : (
+                  <button className="btn btn-success btn-sm w-100" onClick={() => handlePrenota(evento.id)}>
+                    Prenota
+                  </button>
+                )
+              )}
+            </div>
           </div>
-        </div>
-        
         ))}
       </div>
     </div>
